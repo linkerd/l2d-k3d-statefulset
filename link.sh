@@ -18,16 +18,15 @@ fetch_credentials() {
     
     # shellcheck disable=SC2001  
     echo "$($LINKERD --context="k3d-$cluster" \
-            multicluster link --set "enableHeadlessServices=true" \
+            multicluster link-gen \
             --cluster-name="k3d-$cluster" \
-            --log-level="debug" \
             --api-server-address="https://${lb_ip}:6443")" 
 }
 
 # East & West get access to each other.
-fetch_credentials east | kubectl --context=k3d-west apply -n linkerd-multicluster -f -
+fetch_credentials east | kubectl --context=k3d-west apply -f -
 
-fetch_credentials west | kubectl --context=k3d-east apply -n linkerd-multicluster -f -
+fetch_credentials west | kubectl --context=k3d-east apply -f -
 
 sleep 10
 for c in east west ; do
