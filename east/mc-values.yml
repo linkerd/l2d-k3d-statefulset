@@ -1,0 +1,6 @@
+controllers:
+- link:
+    ref:
+      name: k3d-west
+  logLevel: debug
+  enableHeadlessServices: true

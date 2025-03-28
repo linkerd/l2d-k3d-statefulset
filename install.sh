@@ -8,6 +8,7 @@ set -x
 
 ORG_DOMAIN="${ORG_DOMAIN:-cluster.local}"
 LINKERD="${LINKERD:-linkerd}"
+GATEWAY_API_VERSION="v1.1.1"
 
 case $(uname) in
 	Darwin)
@@ -48,6 +49,9 @@ for cluster in east west ; do
         --profile=intermediate-ca \
         --not-after 8760h --no-password --insecure
 
+    # Install GatewayAPI CRDs
+	  kubectl --context="k3d-$cluster" apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/experimental-install.yaml"
+
     #Install CRDs into cluster
     $LINKERD --context="k3d-$cluster" install --crds |  kubectl --context="k3d-$cluster" apply -f -
 
@@ -69,6 +73,6 @@ for cluster in east west ; do
     sleep 2
 
     # Setup the multicluster components on the server
-    $LINKERD --context="k3d-$cluster" multicluster install |
+    $LINKERD --context="k3d-$cluster" multicluster install -f "$cluster/mc-values.yml" |
         kubectl --context="k3d-$cluster" apply -f -
 done
